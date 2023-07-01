@@ -1,5 +1,5 @@
 from sqlalchemy.orm import declarative_base, relationship
-from sqlalchemy import JSON, Column, Date, ForeignKey, Integer, String, Boolean, Float
+from sqlalchemy import JSON, Column, Date, ForeignKey, Integer, String, Boolean, Float, Text
 
 Base = declarative_base()
 
@@ -9,7 +9,7 @@ class User(Base):
     id = Column(Integer, nullable=False, autoincrement=True, unique=True, primary_key=True)
     alternative_id = Column(String, unique=True)
     name = Column(String, nullable=False)
-    email = Column(String, nullable=False)
+    email = Column(String, nullable=False, unique=True)
     tel = Column(String)
     hash = Column(String)
     address = Column(String)
@@ -20,14 +20,12 @@ class User(Base):
     uf = Column(String)
     cep = Column(String)
     provider = Column(Integer, nullable=False) # 1 - Credentials, 2 - Google, 3 - Facebook
-    access_token = Column(String)
-    refresh_token = Column(String)
+    is_complete_data = Column(Boolean)
     is_admin = Column(Boolean)
-    is_authenticated = Column(Boolean)
     company_user_id = relationship('Company')
 
     def __init__(self, alternative_id, name, email, tel, hash, address, num, district, \
-                 complement, city, uf, cep, provider, access_token, refresh_token, is_admin, is_authenticated):
+                 complement, city, uf, cep, provider, is_admin, is_complete_data):
         self.alternative_id = alternative_id
         self.name = name
         self.email = email
@@ -41,15 +39,14 @@ class User(Base):
         self.uf = uf
         self.cep = cep
         self.provider = provider
-        self.access_token = access_token
-        self.refresh_token = refresh_token
         self.is_admin = is_admin
-        self.is_authenticated = is_authenticated
+        self.is_complete_data = is_complete_data
 
 class Company(Base):
     __tablename__ = 'company'
     id = Column(Integer, nullable=False, autoincrement=True, unique=True, primary_key=True)
     name = Column(String, nullable=False)
+    description = Column(Text, nullable=False)
     email = Column(String, nullable=False)
     tel = Column(String, nullable=False)
     address = Column(String, nullable=False)
@@ -60,13 +57,15 @@ class Company(Base):
     uf = Column(String, nullable=False)
     cep = Column(String, nullable=False)
     images = Column(JSON)
-    admin_id = Column(Integer, ForeignKey(User.id))
+    admin_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    is_active = Column(Boolean, nullable=False)
     project_company_id = relationship('Project')
     property_company_id = relationship('Property')
 
-    def __init__(self, name, email, tel, address, num, complement, district, city, uf, cep, images, admin_id):
+    def __init__(self, name, description, email, tel, address, num, complement, district, city, uf, cep, images, admin_id, is_active):
         self.name = name
         self.email = email
+        self.description = description
         self.tel = tel
         self.address = address
         self.num = num
@@ -77,20 +76,12 @@ class Company(Base):
         self.cep = cep
         self.images = images
         self.admin_id = admin_id
-
-class Status(Base):
-    __tablename__ = 'status'
-    id = Column(Integer, nullable=False, autoincrement=True, unique=True, primary_key=True)
-    name = Column(String)
-    project_status_id = relationship('Project')
-    property_status_id = relationship('Property')
-    
-    def __init__(self, name):
-        self.name = name
+        self.is_active = is_active
 
 class Project(Base):
     __tablename__ = 'project'
     id = Column(Integer, nullable=False, autoincrement=True, unique=True, primary_key=True)
+    company_id = Column(Integer, ForeignKey(Company.id), nullable=False)
     name = Column(String, nullable=False)
     description = Column(String)
     delivery_date = Column(Date)
@@ -98,16 +89,22 @@ class Project(Base):
     num = Column(String)
     complement = Column(String)
     district = Column(String)
+    zone = Column(String)
     city = Column(String)
     uf = Column(String)
     cep = Column(String)
-    status = Column(Integer, ForeignKey(Status.id))
+    latitude = Column(Float)
+    longitude = Column(Float)
+    status = Column(String)
     images = Column(JSON)
-    company_id = Column(Integer, ForeignKey(Company.id), nullable=False)
+    videos = Column(JSON)
+    link = Column(String) # Link do drive original da corretora
+    book = Column(String) # Link do book em PDF
     property_project_id = relationship('Property')
 
-    def __init__(self, name, description, delivery_date, address, num,\
-                  complement, district, city, uf, cep, status, images, company_id):
+    def __init__(self, company_id, name, description, delivery_date, address, num,\
+                  complement, district, zone, city, uf, cep, latitude, longitude, status, images, videos, link, book):
+        self.company_id = company_id
         self.name = name
         self.description = description
         self.delivery_date = delivery_date
@@ -115,16 +112,23 @@ class Project(Base):
         self.num = num
         self.complement = complement
         self.district = district
+        self.zone = zone
         self.city = city
         self.uf = uf
         self.cep = cep
+        self.latitude = latitude
+        self.longitude = longitude
         self.status = status
         self.images = images
-        self.company_id = company_id
+        self.videos = videos
+        self.link = link
+        self.book = book
 
 class Property(Base):
     __tablename__ = 'property'
     id = Column(Integer, nullable=False, autoincrement=True, unique=True, primary_key=True)
+    company_id = Column(Integer, ForeignKey(Company.id), nullable=False)
+    project_id = Column(Integer, ForeignKey(Project.id), nullable=False)
     name = Column(String, nullable=False)
     description = Column(String)
     delivery_date = Column(Date)
@@ -132,12 +136,13 @@ class Property(Base):
     measure = Column(String)
     size = Column(Float)
     price = Column(Float)
-    status = Column(Integer, ForeignKey(Status.id))
+    status = Column(String)
     images = Column(JSON)
-    company_id = Column(Integer, ForeignKey(Company.id), nullable=False)
-    project_id = Column(Integer, ForeignKey(Project.id), nullable=False)
+    videos = Column(JSON)
     
-    def __init__(self, name, description, delivery_date, model, measure, size, price, status, images, company_id, project_id):
+    def __init__(self, company_id, project_id, name, description, delivery_date, model, measure, size, price, status, images, videos):
+        self.company_id = company_id
+        self.project_id = project_id
         self.name = name
         self.description = description
         self.delivery_date = delivery_date
@@ -147,5 +152,4 @@ class Property(Base):
         self.price = price
         self.status = status
         self.images = images
-        self.company_id = company_id
-        self.project_id = project_id
+        self.videos = videos
