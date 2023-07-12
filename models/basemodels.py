@@ -1,5 +1,7 @@
-from typing import Optional
-from pydantic import BaseModel, EmailStr
+from datetime import date
+import json
+from typing import List, Optional
+from pydantic import BaseModel, EmailStr, Json
 
 class _Credencials(BaseModel):
     alternative_id: Optional[str]
@@ -47,3 +49,55 @@ class _Password_Token_Validate(BaseModel):
 class _Response(BaseModel):
     status: int
     body: str | dict | list
+
+class _BasicProject(BaseModel):
+    id: Optional[int]
+    name: Optional[str]
+    thumb: Optional[str]
+    delivery_date: Optional[date]
+    admin_id: Optional[int]
+
+class _Project(BaseModel):
+    id: Optional[int]
+    company_id: Optional[int]
+    name: Optional[str]
+    description: Optional[str]
+    delivery_date: Optional[date]
+    address: Optional[str]
+    num: Optional[str]
+    complement: Optional[str]
+    district: Optional[str]
+    zone: Optional[str]
+    city: Optional[str]
+    uf: Optional[str]
+    cep: Optional[str]
+    latitude: Optional[float]
+    longitude: Optional[float]
+    status: Optional[str]
+    thumb: Optional[str]
+    images: Optional[List[str]]
+    videos: Optional[List[str]]
+    link: Optional[str]
+    book: Optional[str]
+
+class _Property(BaseModel):
+    id: Optional[int]
+    company_id: Optional[int]
+    project_id: Optional[int]
+    name: Optional[str]
+    description: Optional[str]
+    delivery_date: Optional[date]
+    model: Optional[str]
+    measure: Optional[str]
+    size: Optional[str]
+    price: Optional[float]
+    status: Optional[str]
+    thumb: Optional[str]
+    images: Optional[List[str]]
+    videos: Optional[List[str]]
+
+
+class _ProjectView(BaseModel):
+    project: Optional[_Project]
+    cp_name: Optional[str]
+    properties: Optional[List[_Property]]

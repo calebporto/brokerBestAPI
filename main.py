@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request
-from endpoints import user_endpoints, auth_endpoints, register_endpoints
+from endpoints import user_endpoints, auth_endpoints, register_endpoints, project_endpoints
 
 app = FastAPI(
     title='API - Broker Best',
@@ -23,3 +23,4 @@ async def auth(request: Request, call_next):
 app.include_router(auth_endpoints.router)
 app.include_router(register_endpoints.router)
 app.include_router(user_endpoints.router)
+app.include_router(project_endpoints.router)

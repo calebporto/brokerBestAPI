@@ -12,6 +12,7 @@ async def get_context_user(alternative_id: str | None = None, email: str | None 
     user = await _get_user(alternative_id=alternative_id) if alternative_id else await _get_user(email=email)
     if user:
         user_data = {
+            'id': user.id,
             'alternative_id': user.alternative_id,
             'name': user.name,
             'email': user.email,

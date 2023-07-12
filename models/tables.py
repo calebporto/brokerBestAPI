@@ -56,13 +56,14 @@ class Company(Base):
     city = Column(String, nullable=False)
     uf = Column(String, nullable=False)
     cep = Column(String, nullable=False)
+    thumb = Column(String)
     images = Column(JSON)
     admin_id = Column(Integer, ForeignKey(User.id), nullable=False)
     is_active = Column(Boolean, nullable=False)
     project_company_id = relationship('Project')
     property_company_id = relationship('Property')
 
-    def __init__(self, name, description, email, tel, address, num, complement, district, city, uf, cep, images, admin_id, is_active):
+    def __init__(self, name, description, email, tel, address, num, complement, district, city, uf, cep, thumb, images, admin_id, is_active):
         self.name = name
         self.email = email
         self.description = description
@@ -74,6 +75,7 @@ class Company(Base):
         self.city = city
         self.uf = uf
         self.cep = cep
+        self.thumb = thumb
         self.images = images
         self.admin_id = admin_id
         self.is_active = is_active
@@ -96,14 +98,16 @@ class Project(Base):
     latitude = Column(Float)
     longitude = Column(Float)
     status = Column(String)
+    thumb = Column(String)
     images = Column(JSON)
     videos = Column(JSON)
     link = Column(String) # Link do drive original da corretora
     book = Column(String) # Link do book em PDF
     property_project_id = relationship('Property')
+    premium_project_id = relationship('Premium')
 
     def __init__(self, company_id, name, description, delivery_date, address, num,\
-                  complement, district, zone, city, uf, cep, latitude, longitude, status, images, videos, link, book):
+                  complement, district, zone, city, uf, cep, latitude, longitude, status, thumb, images, videos, link, book):
         self.company_id = company_id
         self.name = name
         self.description = description
@@ -119,10 +123,16 @@ class Project(Base):
         self.latitude = latitude
         self.longitude = longitude
         self.status = status
+        self.thumb = thumb
         self.images = images
         self.videos = videos
         self.link = link
         self.book = book
+
+class Premium(Base):
+    __tablename__ = 'premium'
+    id = Column(Integer, nullable=False, autoincrement=True, unique=True, primary_key=True)
+    project_id = Column(Integer, ForeignKey(Project.id), nullable=False)
 
 class Property(Base):
     __tablename__ = 'property'
@@ -137,10 +147,11 @@ class Property(Base):
     size = Column(Float)
     price = Column(Float)
     status = Column(String)
+    thumb = Column(String)
     images = Column(JSON)
     videos = Column(JSON)
     
-    def __init__(self, company_id, project_id, name, description, delivery_date, model, measure, size, price, status, images, videos):
+    def __init__(self, company_id, project_id, name, description, delivery_date, model, measure, size, price, status, thumb, images, videos):
         self.company_id = company_id
         self.project_id = project_id
         self.name = name
@@ -151,5 +162,6 @@ class Property(Base):
         self.size = size
         self.price = price
         self.status = status
+        self.thumb = thumb
         self.images = images
         self.videos = videos
