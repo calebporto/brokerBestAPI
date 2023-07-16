@@ -96,8 +96,25 @@ class _Property(BaseModel):
     images: Optional[List[str]]
     videos: Optional[List[str]]
 
+class _Company(BaseModel):
+    id: Optional[int]
+    name: Optional[str]
+    description: Optional[str]
+    email: Optional[str]
+    tel: Optional[str]
+    address: Optional[str]
+    num: Optional[str]
+    complement: Optional[str]
+    district: Optional[str]
+    city: Optional[str]
+    uf: Optional[str]
+    cep: Optional[str]
+    thumb: Optional[str]
+    images: Optional[List[str]]
+    admin_id: Optional[int]
+    is_active: bool = True
 
 class _ProjectView(BaseModel):
     project: Optional[_Project]
-    cp_name: Optional[str]
+    company: Optional[_Company]
     properties: Optional[List[_Property]]

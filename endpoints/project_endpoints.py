@@ -26,4 +26,5 @@ async def get_premium_projects():
 
 @router.get('/get-project-by-id')
 async def get_project_by_id(id: int):
+    print(id)
     return await _get_project_by_id(id)

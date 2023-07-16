@@ -3,7 +3,7 @@ from json import dumps
 
 from sqlalchemy import func
 from fastapi import Response
-from models.basemodels import _BasicProject, _Project, _ProjectView, _Property
+from models.basemodels import _BasicProject, _Company, _Project, _ProjectView, _Property
 from models.tables import Company, Premium, Project, Property
 from models.connection import async_session
 from sqlalchemy.future import select
@@ -158,12 +158,13 @@ async def _get_project_by_id(id: int):
     async with async_session() as session:
         try:
             query = select(Project)\
-                .add_columns(Company.name, Property)\
+                .add_columns(Company, Property)\
                 .join(Company, Project.company_id == Company.id)\
                 .outerjoin(Property, Project.id == Property.project_id)\
-                .where(Project.id == 1)
+                .where(Project.id == id)
             result = await session.execute(query)
             project_result = result.all()
+            print(project_result)
             
             response = _ProjectView()
             if len(project_result) > 0:
@@ -190,26 +191,44 @@ async def _get_project_by_id(id: int):
                     link = project_result[0][0].link,
                     book = project_result[0][0].book
                 )
-                response.cp_name = project_result[0][1]
+                response.company = _Company(
+                    id=project_result[0][1].id,
+                    name=project_result[0][1].name,
+                    description=project_result[0][1].description,
+                    email=project_result[0][1].email,
+                    tel=project_result[0][1].tel,
+                    address=project_result[0][1].address,
+                    num=project_result[0][1].num,
+                    complement=project_result[0][1].complement,
+                    district=project_result[0][1].district,
+                    city=project_result[0][1].city,
+                    uf=project_result[0][1].uf,
+                    cep=project_result[0][1].cep,
+                    thumb=project_result[0][1].thumb,
+                    images=project_result[0][1].images,
+                    admin_id=project_result[0][1].admin_id,
+                    is_active=project_result[0][1].is_active
+                )
                 response.properties = []
             for item in project_result:
                 property = item[2]
-                response.properties.append(_Property(
-                    id=property.id,
-                    company_id=property.company_id,
-                    project_id=property.project_id,
-                    name=property.name,
-                    description=property.description,
-                    delivery_date=property.delivery_date,
-                    model=property.model,
-                    measure=property.measure,
-                    size=property.size,
-                    price=property.price,
-                    status=property.status,
-                    thumb=property.thumb,
-                    images=property.images,
-                    videos=property.videos
-                ))
+                if (property):
+                    response.properties.append(_Property(
+                        id=property.id,
+                        company_id=property.company_id,
+                        project_id=property.project_id,
+                        name=property.name,
+                        description=property.description,
+                        delivery_date=property.delivery_date,
+                        model=property.model,
+                        measure=property.measure,
+                        size=property.size,
+                        price=property.price,
+                        status=property.status,
+                        thumb=property.thumb,
+                        images=property.images,
+                        videos=property.videos
+                    ))
 
             return Response(dumps(response.dict(), default=str), 200)
         except Exception as error:
