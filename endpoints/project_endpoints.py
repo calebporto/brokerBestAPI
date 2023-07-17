@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from services.project_services import _get_premium_projects, _get_project_by_id, _get_project_names, _get_projects
+from services.project_services import _get_companies, _get_premium_projects, _get_project_by_id, _get_project_names, _get_projects
 
 
 router = APIRouter(prefix='/project-services')
@@ -28,3 +28,7 @@ async def get_premium_projects():
 async def get_project_by_id(id: int):
     print(id)
     return await _get_project_by_id(id)
+
+@router.get('/get-companies')
+async def get_companies(userEmail: str):
+    return await _get_companies(userEmail)

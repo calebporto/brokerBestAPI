@@ -4,7 +4,7 @@ from json import dumps
 from sqlalchemy import func
 from fastapi import Response
 from models.basemodels import _BasicProject, _Company, _Project, _ProjectView, _Property
-from models.tables import Company, Premium, Project, Property
+from models.tables import Company, Premium, Project, Property, User
 from models.connection import async_session
 from sqlalchemy.future import select
 
@@ -27,10 +27,11 @@ async def _get_project_names(filter: str):
                 .distinct(Company.name)
             )
             raw_result = query.all()
+            print(raw_result)
             result = [item[1] for item in raw_result]
         else:
             return Response('filtro invalido', 400)
-    
+
         return Response(dumps(result), 200)
     
 async def _get_projects(
@@ -58,6 +59,9 @@ async def _get_projects(
             case 'construtora':
                 query = query.where(Company.name == key)
                 count_query = count_query.where(Company.name == key)
+            case 'companyId':
+                query = query.where(Company.id == int(key))
+                count_query = count_query.where(Company.id == int(key))
             case _:
                 return Response('filterBy invalido')
         
@@ -234,3 +238,15 @@ async def _get_project_by_id(id: int):
         except Exception as error:
             print(str(error))
             return Response('Erro no servidor.', 200)
+
+async def _get_companies(userEmail: str):
+    async with async_session() as session:
+        query = await session.execute(select(Company)\
+                .join(User, Company.admin_id == User.id)\
+                .where(User.email == userEmail))
+        result = query.scalars().all()
+        
+        for i, item in enumerate(result):
+            result[i] = _Company(**item.__dict__).dict()
+        
+        return Response(dumps(result), 200)
