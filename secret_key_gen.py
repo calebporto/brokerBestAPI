@@ -8,4 +8,3 @@ def generate_secret_key(length):
 
 # Example usage: generate a 32-character secret key including punctuation
 secret_key = generate_secret_key(32)
-print(secret_key)

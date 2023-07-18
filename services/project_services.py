@@ -1,6 +1,7 @@
 import asyncio
 from datetime import date, datetime
 from json import dumps
+from typing import Optional
 
 from sqlalchemy import func
 from fastapi import Response
@@ -15,24 +16,24 @@ loop = asyncio.get_event_loop()
 async def _get_project_names(filter: str):
     async with async_session() as session:
         if filter == 'bairro':
-            query = await session.execute(select(Project.district).distinct())
+            query = await session.execute(select(Project.district).where(Project.district != None).distinct())
             result = query.scalars().all()
         elif filter == 'regiao':
-            query = await session.execute(select(Project.zone).distinct())
+            query = await session.execute(select(Project.zone).where(Project.zone != None).distinct())
             result = query.scalars().all()
         elif filter == 'construtora':
             query = await session.execute(
                 select(Project.id)
                 .column(Company.name)
                 .join(Company, Project.company_id == Company.id)
+                .where(Company.name != None)
                 .distinct(Company.name)
             )
             raw_result = query.all()
-            print(raw_result)
             result = [item[1] for item in raw_result]
         else:
             return Response('filtro invalido', 400)
-
+        print(result)
         return Response(dumps(result), 200)
     
 async def _get_projects(
@@ -168,7 +169,6 @@ async def _get_project_by_id(id: int):
                 .where(Project.id == id)
             result = await session.execute(query)
             project_result = result.all()
-            print(project_result)
             
             response = _ProjectView()
             if len(project_result) > 0:
@@ -241,9 +241,17 @@ async def _get_project_by_id(id: int):
 
 async def _get_companies(userEmail: str):
     async with async_session() as session:
-        query = await session.execute(select(Company)\
-                .join(User, Company.admin_id == User.id)\
-                .where(User.email == userEmail))
+        is_admin_query = await session.execute(select(User.is_admin).where(User.email == userEmail))
+        is_admin = is_admin_query.scalars().first()
+        
+        query = None
+        if is_admin:
+            query = await session.execute(select(Company))
+        else:
+            query = await session.execute(select(Company)\
+                    .join(User, Company.admin_id == User.id)\
+                    .where(User.email == userEmail))
+        
         result = query.scalars().all()
         
         for i, item in enumerate(result):
@@ -255,16 +263,16 @@ async def _add_company(newCompany: _Company):
     async with async_session() as session:
         try:
             session.add(Company(
-                newCompany.name,
-                newCompany.description,
-                newCompany.email,
+                newCompany.name.lower(),
+                newCompany.description.lower(),
+                newCompany.email.lower(),
                 newCompany.tel,
-                newCompany.address,
-                newCompany.num,
-                newCompany.complement,
-                newCompany.district,
-                newCompany.city,
-                newCompany.uf,
+                newCompany.address.lower(),
+                newCompany.num.lower(),
+                newCompany.complement.lower(),
+                newCompany.district.lower(),
+                newCompany.city.lower(),
+                newCompany.uf.lower(),
                 newCompany.cep,
                 newCompany.thumb,
                 newCompany.images,
@@ -283,20 +291,20 @@ async def _add_project(newProject: _Project):
             pjDate = newProject.delivery_date.date() if newProject.delivery_date else None
             session.add(Project(
                 newProject.company_id,
-                newProject.name,
-                newProject.description,
+                newProject.name.lower(),
+                newProject.description.lower(),
                 pjDate,
-                newProject.address,
-                newProject.num,
-                newProject.complement,
-                newProject.district,
-                newProject.zone,
-                newProject.city,
-                newProject.uf,
+                newProject.address.lower(),
+                newProject.num.lower(),
+                newProject.complement.lower(),
+                newProject.district.lower(),
+                newProject.zone.lower(),
+                newProject.city.lower(),
+                newProject.uf.lower(),
                 newProject.cep,
                 newProject.latitude,
                 newProject.longitude,
-                newProject.status,
+                newProject.status.lower(),
                 newProject.thumb,
                 newProject.images,
                 newProject.videos,
@@ -309,12 +317,46 @@ async def _add_project(newProject: _Project):
             print(str(error))
             return Response('Erro no servidor', 500)
         
-async def _get_company_by_id(id: str | int):
+async def _get_company_by_id(id: int | None, projectId: int | None):
     async with async_session() as session:
-        query = await session.execute(
-            select(Company).where(Company.id == id)
-        )
+        query = None
+        if id:
+            query = await session.execute(
+                select(Company).where(Company.id == id)
+            )
+        elif projectId:
+            query = await session.execute(
+                select(Company)\
+                .join(Project, Company.id == Project.company_id)\
+                .where(Project.id == projectId)
+            )
+        else:
+            return Response('Você deve fornecer id ou projectId', 422)
         result = query.scalars().first()
-        print(result)
-        company = _Company(**result.__dict__).dict()
-        return Response(dumps(company), 200)
+        company = _Company(**result.__dict__)
+        return Response(company.json(), 200)
+    
+async def _add_property(newProperty: _Property):
+    async with async_session() as session:
+        try:
+            ppDate = newProperty.delivery_date.date() if newProperty.delivery_date else None
+            session.add(Property(
+                newProperty.company_id,
+                newProperty.project_id,
+                newProperty.name.lower(),
+                newProperty.description.lower(),
+                ppDate,
+                newProperty.model.lower(),
+                newProperty.measure.lower(),
+                float(newProperty.size),
+                float(newProperty.price),
+                newProperty.status.lower(),
+                newProperty.thumb,
+                newProperty.images,
+                newProperty.videos
+            ))
+            await session.commit()
+            return Response('Imóvel cadastrado com sucesso', 200)
+        except Exception as error:
+            print(str(error))
+            return Response('Erro no servidor', 500)

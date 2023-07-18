@@ -87,7 +87,7 @@ class _Property(BaseModel):
     project_id: Optional[int]
     name: Optional[str]
     description: Optional[str]
-    delivery_date: Optional[date]
+    delivery_date: Optional[datetime.datetime | date]
     model: Optional[str]
     measure: Optional[str]
     size: Optional[str]

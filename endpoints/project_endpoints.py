@@ -1,7 +1,8 @@
-from fastapi import APIRouter
-from models.basemodels import _Company, _Project
+from typing import Optional
+from fastapi import APIRouter, Response
+from models.basemodels import _Company, _Project, _Property
 
-from services.project_services import _add_company, _add_project, _get_companies, _get_company_by_id, _get_premium_projects, _get_project_by_id, _get_project_names, _get_projects
+from services.project_services import _add_company, _add_project, _add_property, _get_companies, _get_company_by_id, _get_premium_projects, _get_project_by_id, _get_project_names, _get_projects
 
 
 router = APIRouter(prefix='/project-services')
@@ -27,7 +28,6 @@ async def get_premium_projects():
 
 @router.get('/get-project-by-id')
 async def get_project_by_id(id: int):
-    print(id)
     return await _get_project_by_id(id)
 
 @router.get('/get-companies')
@@ -42,6 +42,10 @@ async def add_company(newCompany: _Company):
 async def add_project(newProject: _Project):
     return await _add_project(newProject)
 
-@router.get('/get-company-by-id')
-async def get_company_by_id(id: str | int):
-    return await _get_company_by_id(int(id))
+@router.get('/get-company-by-id', response_model=_Company)
+async def get_company_by_id(id: int = None, projectId: int = None):
+    return await _get_company_by_id(id, projectId)
+
+@router.post('/add-property')
+async def add_property(newProperty: _Property):
+    return await _add_property(newProperty)
