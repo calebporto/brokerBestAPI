@@ -1,4 +1,5 @@
 from datetime import date
+import datetime
 import json
 from typing import List, Optional
 from pydantic import BaseModel, EmailStr, Json
@@ -62,7 +63,7 @@ class _Project(BaseModel):
     company_id: Optional[int]
     name: Optional[str]
     description: Optional[str]
-    delivery_date: Optional[date]
+    delivery_date: Optional[datetime.datetime | date]
     address: Optional[str]
     num: Optional[str]
     complement: Optional[str]

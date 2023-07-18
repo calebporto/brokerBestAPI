@@ -1,4 +1,5 @@
 import asyncio
+from datetime import date, datetime
 from json import dumps
 
 from sqlalchemy import func
@@ -252,22 +253,68 @@ async def _get_companies(userEmail: str):
     
 async def _add_company(newCompany: _Company):
     async with async_session() as session:
-        session.add(Company(
-            newCompany.name,
-            newCompany.description,
-            newCompany.email,
-            newCompany.tel,
-            newCompany.address,
-            newCompany.num,
-            newCompany.complement,
-            newCompany.district,
-            newCompany.city,
-            newCompany.uf,
-            newCompany.cep,
-            newCompany.thumb,
-            newCompany.images,
-            newCompany.admin_id,
-            newCompany.is_active
-        ))
-        await session.commit()
-        return Response('Construtora cadastrada com sucesso', 200)
+        try:
+            session.add(Company(
+                newCompany.name,
+                newCompany.description,
+                newCompany.email,
+                newCompany.tel,
+                newCompany.address,
+                newCompany.num,
+                newCompany.complement,
+                newCompany.district,
+                newCompany.city,
+                newCompany.uf,
+                newCompany.cep,
+                newCompany.thumb,
+                newCompany.images,
+                newCompany.admin_id,
+                newCompany.is_active
+            ))
+            await session.commit()
+            return Response('Construtora cadastrada com sucesso', 200)
+        except Exception as error:
+            print(str(error))
+            return Response('Erro no servidor', 500)
+        
+async def _add_project(newProject: _Project):
+    async with async_session() as session:
+        try:
+            pjDate = newProject.delivery_date.date() if newProject.delivery_date else None
+            session.add(Project(
+                newProject.company_id,
+                newProject.name,
+                newProject.description,
+                pjDate,
+                newProject.address,
+                newProject.num,
+                newProject.complement,
+                newProject.district,
+                newProject.zone,
+                newProject.city,
+                newProject.uf,
+                newProject.cep,
+                newProject.latitude,
+                newProject.longitude,
+                newProject.status,
+                newProject.thumb,
+                newProject.images,
+                newProject.videos,
+                newProject.link,
+                newProject.book
+            ))
+            await session.commit()
+            return Response('Empreendimento cadastrado com sucesso', 200)
+        except Exception as error:
+            print(str(error))
+            return Response('Erro no servidor', 500)
+        
+async def _get_company_by_id(id: str | int):
+    async with async_session() as session:
+        query = await session.execute(
+            select(Company).where(Company.id == id)
+        )
+        result = query.scalars().first()
+        print(result)
+        company = _Company(**result.__dict__).dict()
+        return Response(dumps(company), 200)
