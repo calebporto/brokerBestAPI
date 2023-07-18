@@ -156,7 +156,6 @@ async def _get_premium_projects():
         except Exception as error:
             print(str(error))
             return Response('Erro no servidor', 500)
-        
 
 async def _get_project_by_id(id: int):
     async with async_session() as session:
@@ -250,3 +249,25 @@ async def _get_companies(userEmail: str):
             result[i] = _Company(**item.__dict__).dict()
         
         return Response(dumps(result), 200)
+    
+async def _add_company(newCompany: _Company):
+    async with async_session() as session:
+        session.add(Company(
+            newCompany.name,
+            newCompany.description,
+            newCompany.email,
+            newCompany.tel,
+            newCompany.address,
+            newCompany.num,
+            newCompany.complement,
+            newCompany.district,
+            newCompany.city,
+            newCompany.uf,
+            newCompany.cep,
+            newCompany.thumb,
+            newCompany.images,
+            newCompany.admin_id,
+            newCompany.is_active
+        ))
+        await session.commit()
+        return Response('Construtora cadastrada com sucesso', 200)

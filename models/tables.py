@@ -55,7 +55,7 @@ class Company(Base):
     district = Column(String, nullable=False)
     city = Column(String, nullable=False)
     uf = Column(String, nullable=False)
-    cep = Column(String, nullable=False)
+    cep = Column(String)
     thumb = Column(String)
     images = Column(JSON)
     admin_id = Column(Integer, ForeignKey(User.id), nullable=False)
