@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import APIRouter, Response
 from models.basemodels import _Company, _Project, _Property
 
-from services.project_services import _add_company, _add_project, _add_property, _get_companies, _get_company_by_id, _get_premium_projects, _get_project_by_id, _get_project_names, _get_projects
+from services.project_services import _add_company, _add_project, _add_property, _get_companies, _get_company_by_id, _get_premium_projects, _get_project_by_id, _get_project_names, _get_projects, _get_projects_by_position
 
 
 router = APIRouter(prefix='/project-services')
@@ -49,3 +49,7 @@ async def get_company_by_id(id: int = None, projectId: int = None):
 @router.post('/add-property')
 async def add_property(newProperty: _Property):
     return await _add_property(newProperty)
+
+@router.get('/get-projects-by-position')
+async def get_projects_by_position(lat: float, lng: float, radius: int):
+    return await _get_projects_by_position(lat, lng, radius)

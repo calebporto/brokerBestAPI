@@ -360,3 +360,25 @@ async def _add_property(newProperty: _Property):
         except Exception as error:
             print(str(error))
             return Response('Erro no servidor', 500)
+        
+async def _get_projects_by_position(lat: int, lng: int, radius: int):
+    async with async_session() as session:
+        query = await session.execute(
+            select(Project)\
+            .where(6371 *\
+                   func.acos(
+                    func.cos(func.radians(lat)) *\
+                    func.cos(func.radians(Project.latitude)) *\
+                    func.cos(func.radians(lng) - func.radians(Project.longitude)) +\
+                    func.sin(func.radians(lat)) *\
+                    func.sin(func.radians(Project.latitude))
+                   ) <= radius)
+        )
+        result = query.scalars().all()
+        print(result)
+        
+        projects = []
+        for project in result:
+            projects.append(_Project(**project.__dict__).dict())
+        
+        return Response(dumps(projects, default=str), 200)
