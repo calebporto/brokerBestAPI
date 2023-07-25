@@ -3,7 +3,7 @@ from datetime import date, datetime
 from json import dumps
 from typing import Optional
 
-from sqlalchemy import func
+from sqlalchemy import delete, func
 from fastapi import Response
 from models.basemodels import _BasicProject, _Company, _Project, _ProjectView, _Property
 from models.tables import Company, Premium, Project, Property, User
@@ -246,7 +246,7 @@ async def _get_companies(userEmail: str):
         
         query = None
         if is_admin:
-            query = await session.execute(select(Company))
+            query = await session.execute(select(Company).order_by(Company.id))
         else:
             query = await session.execute(select(Company)\
                     .join(User, Company.admin_id == User.id)\
@@ -382,3 +382,81 @@ async def _get_projects_by_position(lat: int, lng: int, radius: int):
             projects.append(_Project(**project.__dict__).dict())
         
         return Response(dumps(projects, default=str), 200)
+    
+async def _company_delete(id: int):
+    async with async_session() as session:
+        await session.execute(delete(Company).where(Company.id == id))
+        await session.commit()
+        return Response('Construtora excluída com sucesso.', 200)
+
+async def _project_delete(id: int):
+    async with async_session() as session:
+        await session.execute(delete(Project).where(Project.id == id))
+        await session.commit()
+        return Response('Empreendimento excluído com sucesso.', 200)
+
+async def _property_delete(id: int):
+    async with async_session() as session:
+        await session.execute(delete(Property).where(Property.id == id))
+        await session.commit()
+        return Response('Imóvel excluído com sucesso.', 200)
+    
+async def _company_edit(company: _Company):
+    async with async_session() as session:
+        if not company.id:
+            return Response('Id inválido', 400)
+        
+        query = await session.execute(
+            select(Company).where(Company.id == company.id)
+        )
+        company_db = query.scalars().first()
+
+        company_db.name = company.name.lower() if company.name else company_db.name
+        company_db.description = company.description.lower() if company.description else company_db.description
+        company_db.email = company.email.lower() if company.email else company_db.email
+        company_db.tel = company.tel.lower() if company.tel else company_db.tel
+        company_db.address = company.address.lower() if company.address else company_db.address
+        company_db.num = company.num.lower() if company.num else company_db.num
+        company_db.complement = company.complement.lower() if company.complement else company_db.complement
+        company_db.district = company.district.lower() if company.district else company_db.district
+        company_db.city = company.city.lower() if company.city else company_db.city
+        company_db.uf = company.uf.lower() if company.uf else company_db.uf
+        company_db.cep = company.cep.lower() if company.cep else company_db.cep
+        company_db.thumb = company.thumb if company.thumb else company_db.thumb
+
+        session.add(company_db)
+        await session.commit()
+
+async def _project_edit(project: _Project):
+    async with async_session() as session:
+        if not project.id:
+            return Response('Id inválido', 400)
+        
+        query = await session.execute(
+            select(Project).where(Project.id == project.id)
+        )
+        project_db = query.scalars().first()
+
+        project_db.name = project.name.lower() if project.name else project_db.name
+        project_db.description = project.description.lower() if project.description else project_db.description
+        project_db.delivery_date = project.delivery_date if project.delivery_date else project_db.delivery_date
+        project_db.address = project.address.lower() if project.address else project_db.address
+        project_db.num = project.num if project.num else project_db.num
+        project_db.complement = project.complement.lower() if project.complement else project_db.complement
+        project_db.district = project.district.lower() if project.district else project_db.district
+        project_db.zone = project.zone.lower() if project.zone else project_db.zone
+        project_db.city = project.city.lower() if project.city else project_db.city
+        project_db.uf = project.uf.lower() if project.uf else project_db.uf
+        project_db.latitude = project.latitude if project.latitude else project_db.latitude
+        project_db.longitude = project.longitude if project.longitude else project_db.longitude
+        project_db.status = project.status.lower() if project.status else project_db.status
+        project_db.thumb = project.thumb if project.thumb else project_db.thumb
+        project_db.images = project.images if project.images else project_db.images
+        project_db.videos = project.videos if project.videos else project_db.videos
+        project_db.link = project.link if project.link else project_db.link
+        project_db.book = project.book if project.book else project_db.book
+
+        session.add(project_db)
+        await session.commit()
+
+        return Response('Cadastro alterado com sucesso.', 200)

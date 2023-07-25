@@ -58,7 +58,7 @@ class Company(Base):
     cep = Column(String)
     thumb = Column(String)
     images = Column(JSON)
-    admin_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    admin_id = Column(Integer, ForeignKey(User.id, ondelete='CASCADE'), nullable=False)
     is_active = Column(Boolean, nullable=False)
     project_company_id = relationship('Project')
     property_company_id = relationship('Property')
@@ -83,7 +83,7 @@ class Company(Base):
 class Project(Base):
     __tablename__ = 'project'
     id = Column(Integer, nullable=False, autoincrement=True, unique=True, primary_key=True)
-    company_id = Column(Integer, ForeignKey(Company.id), nullable=False)
+    company_id = Column(Integer, ForeignKey(Company.id, ondelete='CASCADE'), nullable=False)
     name = Column(String, nullable=False)
     description = Column(String)
     delivery_date = Column(Date)
@@ -132,13 +132,13 @@ class Project(Base):
 class Premium(Base):
     __tablename__ = 'premium'
     id = Column(Integer, nullable=False, autoincrement=True, unique=True, primary_key=True)
-    project_id = Column(Integer, ForeignKey(Project.id), nullable=False)
+    project_id = Column(Integer, ForeignKey(Project.id, ondelete='CASCADE'), nullable=False)
 
 class Property(Base):
     __tablename__ = 'property'
     id = Column(Integer, nullable=False, autoincrement=True, unique=True, primary_key=True)
-    company_id = Column(Integer, ForeignKey(Company.id), nullable=False)
-    project_id = Column(Integer, ForeignKey(Project.id), nullable=False)
+    company_id = Column(Integer, ForeignKey(Company.id, ondelete='CASCADE'), nullable=False)
+    project_id = Column(Integer, ForeignKey(Project.id, ondelete='CASCADE'), nullable=False)
     name = Column(String, nullable=False)
     description = Column(String)
     delivery_date = Column(Date)
