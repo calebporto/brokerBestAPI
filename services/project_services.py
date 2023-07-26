@@ -1,11 +1,11 @@
 import asyncio
 from datetime import date, datetime
 from json import dumps
-from typing import Optional
+from typing import List, Optional
 
 from sqlalchemy import delete, func
 from fastapi import Response
-from models.basemodels import _BasicProject, _Company, _Project, _ProjectView, _Property
+from models.basemodels import _BasicProject, _Company, _PremiumProjectData, _PremiumQuery, _Project, _ProjectView, _Property
 from models.tables import Company, Premium, Project, Property, User
 from models.connection import async_session
 from sqlalchemy.future import select
@@ -33,7 +33,6 @@ async def _get_project_names(filter: str):
             result = [item[1] for item in raw_result]
         else:
             return Response('filtro invalido', 400)
-        print(result)
         return Response(dumps(result), 200)
     
 async def _get_projects(
@@ -460,3 +459,46 @@ async def _project_edit(project: _Project):
         await session.commit()
 
         return Response('Cadastro alterado com sucesso.', 200)
+    
+async def _get_premium_query():
+    async with async_session() as session:
+        projectQuery = await session.execute(
+            select(Project)
+        )
+        projectResult = projectQuery.scalars().all()
+
+        premiumQuery = await session.execute(
+            select(Project.id)\
+            .add_columns(Project.name)\
+            .join(Premium, Project.id == Premium.project_id)\
+            .where(Premium.project_id == Project.id)
+        )
+        premiumResult = premiumQuery.all()
+
+        response = _PremiumQuery(
+            premiumList=[],
+            projectList=[]
+        )
+
+        for project in projectResult:
+            response.projectList.append(_PremiumProjectData(**project.__dict__))
+        
+        for project in premiumResult:
+            response.premiumList.append(_PremiumProjectData(
+                id=project[0],
+                name=project[1]
+            ))
+        
+        return Response(response.json(), 200)
+        
+
+async def _changePremium(data: List[_PremiumProjectData]):
+    async with async_session() as session:
+        await session.execute(delete(Premium))
+        for item in data:
+            session.add(Premium(
+                project_id=item.id
+            ))
+        await session.commit()
+
+        return Response('Alteração realizada com sucesso.', 200)

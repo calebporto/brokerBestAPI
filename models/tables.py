@@ -134,6 +134,9 @@ class Premium(Base):
     id = Column(Integer, nullable=False, autoincrement=True, unique=True, primary_key=True)
     project_id = Column(Integer, ForeignKey(Project.id, ondelete='CASCADE'), nullable=False)
 
+    def __init__(self, project_id):
+        self.project_id = project_id
+
 class Property(Base):
     __tablename__ = 'property'
     id = Column(Integer, nullable=False, autoincrement=True, unique=True, primary_key=True)
