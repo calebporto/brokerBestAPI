@@ -15,6 +15,7 @@ class _New_User(BaseModel):
     nome: Optional[str]
     email: Optional[str]
     tel: Optional[str]
+    imobiliaria: Optional[str]
     cep: Optional[str]
     hash: Optional[str]
     endereco: Optional[str]

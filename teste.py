@@ -1,9 +1,4 @@
-def func(a):
-    a = 1
+from providers.email_functions import auth_email
 
-def main():
-    a = None
-    func(a)
-    print(a)
 
-main()
+auth_email('calebbds@gmail.com', 'Caléb Rangel Porto', 'http://localhost:3000/auth/email-validate?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbHRlcm5hdGl2ZV9pZCI6IjQzNmU2ZDFiZTNjMDM1Y2E1NzYxNzM5MGQwZDdjZjhlIiwiZW1haWwiOiJjYWxlYmJkc0BnbWFpbC5jb20iLCJub21lIjoiY2FsXHUwMGU5YiByYW5nZWwgcG9ydG8iLCJleHAiOjE2OTEyNjY2MjJ9.ntDsveRVKP1uiGdRNM_XNZ2cW-odpIx9HO3Vo6RQkuY')

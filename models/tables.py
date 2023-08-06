@@ -11,6 +11,7 @@ class User(Base):
     name = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
     tel = Column(String)
+    real_state = Column(String, nullable=False)
     hash = Column(String)
     address = Column(String)
     num = Column(String)
@@ -24,12 +25,13 @@ class User(Base):
     is_admin = Column(Boolean)
     company_user_id = relationship('Company')
 
-    def __init__(self, alternative_id, name, email, tel, hash, address, num, district, \
+    def __init__(self, alternative_id, name, email, tel, real_state, hash, address, num, district, \
                  complement, city, uf, cep, provider, is_admin, is_complete_data):
         self.alternative_id = alternative_id
         self.name = name
         self.email = email
         self.tel = tel
+        self.real_state = real_state
         self.hash = hash
         self.address = address
         self.num = num

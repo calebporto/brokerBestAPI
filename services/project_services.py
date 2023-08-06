@@ -90,7 +90,7 @@ async def _get_projects(
         if int(offset) > 0:
             query = query.offset(int(offset))
         
-        query = query.limit(12)
+        query = query.limit(50)
 
         result = await session.execute(query)
         count = await session.execute(count_query)

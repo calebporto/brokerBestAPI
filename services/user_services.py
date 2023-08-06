@@ -36,6 +36,7 @@ async def _new_user(user_data):
                 user_data.nome.lower(),
                 user_data.email.lower(),
                 user_data.tel.lower(),
+                user_data.imobiliaria.lower(),
                 user_data.password,
                 user_data.endereco.lower(),
                 user_data.num.lower(),
@@ -65,6 +66,7 @@ async def _complete_user(user_data):
             user_data.nome.lower(),
             user_data.email.lower(),
             user_data.tel.lower(),
+            user_data.imobiliaria.lower(),
             None,
             user_data.endereco.lower(),
             user_data.num.lower(),
@@ -117,6 +119,7 @@ async def _user_update(data: _New_User, email=None, id=None, alternative_id=None
             user.name = data.nome if data.nome else user.name
             user.email = data.email if data.email else user.email
             user.tel = data.tel if data.tel else user.tel
+            user.real_state = data.imobiliaria if data.imobiliaria else user.real_state
             user.hash = data.hash if data.hash else user.hash
             user.address = data.endereco if data.endereco else user.address
             user.num = data.num if data.num else user.num
