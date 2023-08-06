@@ -38,6 +38,7 @@ def auth_email(receiver, nome, link):
     s.starttls()
     s.login(os.environ['EMAIL_ACCOUNT'], password)
     s.sendmail(os.environ['EMAIL_ACCOUNT'], msg['To'], msg.as_string().encode('utf-8'))
+    print('email enviado')
     return True
     # except Exception as error:
     #     print(str(error))
@@ -70,6 +71,7 @@ def new_password_email(receiver, nome, link):
         s.login(os.environ['EMAIL_ACCOUNT'], password)
         s.sendmail(os.environ['EMAIL_ACCOUNT'], msg['To'], msg.as_string().encode('utf-8'))
 
+        print('email enviado')
         return True
     except Exception as error:
         print(str(error))

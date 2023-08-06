@@ -26,7 +26,7 @@ class _New_User(BaseModel):
     uf: Optional[str]
     password: Optional[str]
     provider: Optional[int]
-    is_data_complete: Optional[bool]
+    is_complete_data: Optional[bool]
     is_admin: Optional[bool]
 
 class MagicLink(BaseModel):

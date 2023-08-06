@@ -130,7 +130,7 @@ async def _user_update(data: _New_User, email=None, id=None, alternative_id=None
             user.cep = data.cep if data.cep else user.cep
             user.provider = data.provider if data.provider else user.provider
             user.is_admin = data.is_admin if data.is_admin != None else user.is_admin
-            user.is_data_complete = data.is_data_complete if data.is_data_complete != None else user.is_data_complete
+            user.is_complete_data = data.is_complete_data if data.is_complete_data != None else user.is_complete_data
             
             session.add(user)
             await session.commit()
