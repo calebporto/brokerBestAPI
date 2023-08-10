@@ -262,16 +262,16 @@ async def _add_company(newCompany: _Company):
     async with async_session() as session:
         try:
             session.add(Company(
-                newCompany.name.lower(),
-                newCompany.description.lower(),
-                newCompany.email.lower(),
+                newCompany.name,
+                newCompany.description,
+                newCompany.email,
                 newCompany.tel,
-                newCompany.address.lower(),
-                newCompany.num.lower(),
-                newCompany.complement.lower(),
-                newCompany.district.lower(),
-                newCompany.city.lower(),
-                newCompany.uf.lower(),
+                newCompany.address,
+                newCompany.num,
+                newCompany.complement,
+                newCompany.district,
+                newCompany.city,
+                newCompany.uf,
                 newCompany.cep,
                 newCompany.thumb,
                 newCompany.images,
@@ -290,20 +290,20 @@ async def _add_project(newProject: _Project):
             pjDate = newProject.delivery_date.date() if newProject.delivery_date else None
             session.add(Project(
                 newProject.company_id,
-                newProject.name.lower(),
-                newProject.description.lower(),
+                newProject.name,
+                newProject.description,
                 pjDate,
-                newProject.address.lower(),
-                newProject.num.lower(),
-                newProject.complement.lower(),
-                newProject.district.lower(),
-                newProject.zone.lower(),
-                newProject.city.lower(),
-                newProject.uf.lower(),
+                newProject.address,
+                newProject.num,
+                newProject.complement,
+                newProject.district,
+                newProject.zone,
+                newProject.city,
+                newProject.uf,
                 newProject.cep,
                 newProject.latitude,
                 newProject.longitude,
-                newProject.status.lower(),
+                newProject.status,
                 newProject.thumb,
                 newProject.images,
                 newProject.videos,
@@ -342,14 +342,14 @@ async def _add_property(newProperty: _Property):
             session.add(Property(
                 newProperty.company_id,
                 newProperty.project_id,
-                newProperty.name.lower(),
-                newProperty.description.lower(),
+                newProperty.name,
+                newProperty.description,
                 ppDate,
-                newProperty.model.lower(),
-                newProperty.measure.lower(),
+                newProperty.model,
+                newProperty.measure,
                 float(newProperty.size),
                 float(newProperty.price),
-                newProperty.status.lower(),
+                newProperty.status,
                 newProperty.thumb,
                 newProperty.images,
                 newProperty.videos
@@ -410,17 +410,17 @@ async def _company_edit(company: _Company):
         )
         company_db = query.scalars().first()
 
-        company_db.name = company.name.lower() if company.name else company_db.name
-        company_db.description = company.description.lower() if company.description else company_db.description
-        company_db.email = company.email.lower() if company.email else company_db.email
-        company_db.tel = company.tel.lower() if company.tel else company_db.tel
-        company_db.address = company.address.lower() if company.address else company_db.address
-        company_db.num = company.num.lower() if company.num else company_db.num
-        company_db.complement = company.complement.lower() if company.complement else company_db.complement
-        company_db.district = company.district.lower() if company.district else company_db.district
-        company_db.city = company.city.lower() if company.city else company_db.city
-        company_db.uf = company.uf.lower() if company.uf else company_db.uf
-        company_db.cep = company.cep.lower() if company.cep else company_db.cep
+        company_db.name = company.name if company.name else company_db.name
+        company_db.description = company.description if company.description else company_db.description
+        company_db.email = company.email if company.email else company_db.email
+        company_db.tel = company.tel if company.tel else company_db.tel
+        company_db.address = company.address if company.address else company_db.address
+        company_db.num = company.num if company.num else company_db.num
+        company_db.complement = company.complement if company.complement else company_db.complement
+        company_db.district = company.district if company.district else company_db.district
+        company_db.city = company.city if company.city else company_db.city
+        company_db.uf = company.uf if company.uf else company_db.uf
+        company_db.cep = company.cep if company.cep else company_db.cep
         company_db.thumb = company.thumb if company.thumb else company_db.thumb
 
         session.add(company_db)
@@ -436,19 +436,19 @@ async def _project_edit(project: _Project):
         )
         project_db = query.scalars().first()
 
-        project_db.name = project.name.lower() if project.name else project_db.name
-        project_db.description = project.description.lower() if project.description else project_db.description
+        project_db.name = project.name if project.name else project_db.name
+        project_db.description = project.description if project.description else project_db.description
         project_db.delivery_date = project.delivery_date if project.delivery_date else project_db.delivery_date
-        project_db.address = project.address.lower() if project.address else project_db.address
+        project_db.address = project.address if project.address else project_db.address
         project_db.num = project.num if project.num else project_db.num
-        project_db.complement = project.complement.lower() if project.complement else project_db.complement
-        project_db.district = project.district.lower() if project.district else project_db.district
-        project_db.zone = project.zone.lower() if project.zone else project_db.zone
-        project_db.city = project.city.lower() if project.city else project_db.city
-        project_db.uf = project.uf.lower() if project.uf else project_db.uf
+        project_db.complement = project.complement if project.complement else project_db.complement
+        project_db.district = project.district if project.district else project_db.district
+        project_db.zone = project.zone if project.zone else project_db.zone
+        project_db.city = project.city if project.city else project_db.city
+        project_db.uf = project.uf if project.uf else project_db.uf
         project_db.latitude = project.latitude if project.latitude else project_db.latitude
         project_db.longitude = project.longitude if project.longitude else project_db.longitude
-        project_db.status = project.status.lower() if project.status else project_db.status
+        project_db.status = project.status if project.status else project_db.status
         project_db.thumb = project.thumb if project.thumb else project_db.thumb
         project_db.images = project.images if project.images else project_db.images
         project_db.videos = project.videos if project.videos else project_db.videos
