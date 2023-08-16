@@ -64,6 +64,7 @@ class Company(Base):
     is_active = Column(Boolean, nullable=False)
     project_company_id = relationship('Project')
     property_company_id = relationship('Property')
+    premium_company_id = relationship('Premium')
 
     def __init__(self, name, description, email, tel, address, num, complement, district, city, uf, cep, thumb, images, admin_id, is_active):
         self.name = name
@@ -106,7 +107,6 @@ class Project(Base):
     link = Column(String) # Link do drive original da corretora
     book = Column(String) # Link do book em PDF
     property_project_id = relationship('Property')
-    premium_project_id = relationship('Premium')
 
     def __init__(self, company_id, name, description, delivery_date, address, num,\
                   complement, district, zone, city, uf, cep, latitude, longitude, status, thumb, images, videos, link, book):
@@ -134,10 +134,10 @@ class Project(Base):
 class Premium(Base):
     __tablename__ = 'premium'
     id = Column(Integer, nullable=False, autoincrement=True, unique=True, primary_key=True)
-    project_id = Column(Integer, ForeignKey(Project.id, ondelete='CASCADE'), nullable=False)
+    company_id = Column(Integer, ForeignKey(Company.id, ondelete='CASCADE'), nullable=False)
 
-    def __init__(self, project_id):
-        self.project_id = project_id
+    def __init__(self, company_id):
+        self.company_id = company_id
 
 class Property(Base):
     __tablename__ = 'property'

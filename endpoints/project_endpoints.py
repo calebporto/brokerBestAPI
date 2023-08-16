@@ -2,7 +2,7 @@ from json import dumps
 import os
 from typing import List, Optional
 from fastapi import APIRouter, Response
-from models.basemodels import _Company, _PremiumProjectData, _Project, _Property
+from models.basemodels import _Company, _PremiumCompanyData, _Project, _Property
 from services.project_services import _add_company, _add_project, _add_property, _changePremium, _company_delete, _company_edit, _get_companies, _get_company_by_id, _get_premium_projects, _get_premium_query, _get_project_by_id, _get_project_names, _get_projects, _get_projects_by_position, _project_delete, _project_edit, _property_delete
 from botocore.exceptions import ClientError
 import boto3
@@ -101,5 +101,5 @@ async def get_premium_query():
     return await _get_premium_query()
 
 @router.post('/change-premium')
-async def change_premium(data: List[_PremiumProjectData]):
+async def change_premium(data: List[_PremiumCompanyData]):
     return await _changePremium(data)

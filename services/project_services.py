@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from sqlalchemy import delete, func
 from fastapi import Response
-from models.basemodels import _BasicProject, _Company, _PremiumProjectData, _PremiumQuery, _Project, _ProjectView, _Property
+from models.basemodels import _BasicProject, _Company, _PremiumCompanyData, _PremiumCompanyData, _PremiumQuery, _Project, _ProjectView, _Property
 from models.tables import Company, Premium, Project, Property, User
 from models.connection import async_session
 from sqlalchemy.future import select
@@ -122,36 +122,14 @@ async def _get_premium_projects():
     async with async_session() as session:
         try:
             query = await session.execute(
-                select(Project).select_from(Premium)\
-                .join(Project, Premium.project_id == Project.id)
+                select(Company).select_from(Premium)\
+                .join(Company, Premium.company_id == Company.id)
             )
             result = query.scalars().all()
             
             response = []
-            for project in result:
-                response.append(_Project(
-                    id = project.id,
-                    company_id = project.company_id,
-                    name = project.name,
-                    description = project.description,
-                    delivery_date = project.delivery_date,
-                    address = project.address,
-                    num = project.num,
-                    complement = project.complement,
-                    district = project.district,
-                    zone = project.zone,
-                    city = project.city,
-                    uf = project.uf,
-                    cep = project.cep,
-                    latitude = project.latitude,
-                    longitude = project.longitude,
-                    status = project.status,
-                    thumb = project.thumb,
-                    images = project.images,
-                    videos = project.videos,
-                    link = project.link,
-                    book = project.book
-                ).dict())
+            for company in result:
+                response.append(_Company(**company.__dict__).dict())
 
             return Response(dumps(response, default=str), 200)
         except Exception as error:
@@ -462,42 +440,42 @@ async def _project_edit(project: _Project):
     
 async def _get_premium_query():
     async with async_session() as session:
-        projectQuery = await session.execute(
-            select(Project)
+        companyQuery = await session.execute(
+            select(Company)
         )
-        projectResult = projectQuery.scalars().all()
+        companyResult = companyQuery.scalars().all()
 
         premiumQuery = await session.execute(
-            select(Project.id)\
-            .add_columns(Project.name)\
-            .join(Premium, Project.id == Premium.project_id)\
-            .where(Premium.project_id == Project.id)
+            select(Company.id)\
+            .add_columns(Company.name)\
+            .join(Premium, Company.id == Premium.company_id)\
+            .where(Premium.company_id == Company.id)
         )
         premiumResult = premiumQuery.all()
 
         response = _PremiumQuery(
             premiumList=[],
-            projectList=[]
+            companyList=[]
         )
 
-        for project in projectResult:
-            response.projectList.append(_PremiumProjectData(**project.__dict__))
+        for company in companyResult:
+            response.companyList.append(_PremiumCompanyData(**company.__dict__))
         
-        for project in premiumResult:
-            response.premiumList.append(_PremiumProjectData(
-                id=project[0],
-                name=project[1]
+        for company in premiumResult:
+            response.premiumList.append(_PremiumCompanyData(
+                id=company[0],
+                name=company[1]
             ))
         
         return Response(response.json(), 200)
         
 
-async def _changePremium(data: List[_PremiumProjectData]):
+async def _changePremium(data: List[_PremiumCompanyData]):
     async with async_session() as session:
         await session.execute(delete(Premium))
         for item in data:
             session.add(Premium(
-                project_id=item.id
+                company_id=item.id
             ))
         await session.commit()
 

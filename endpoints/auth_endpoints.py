@@ -14,6 +14,7 @@ JWT_SECRET = os.environ.get('JWT_SECRET')
 @router.post('/login')
 async def get_token(data: _Credencials):
     user = await _get_user(email=data.email)
+    print(user.hash)
     if not user:
         return Response(dumps(None), 200)
     return user

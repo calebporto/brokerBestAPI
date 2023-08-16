@@ -121,10 +121,10 @@ class _ProjectView(BaseModel):
     company: Optional[_Company]
     properties: Optional[List[_Property]]
 
-class _PremiumProjectData(BaseModel):
+class _PremiumCompanyData(BaseModel):
     id: int
     name: str
 
 class _PremiumQuery(BaseModel):
-    premiumList: List[_PremiumProjectData]
-    projectList: List[_PremiumProjectData]
+    premiumList: List[_PremiumCompanyData]
+    companyList: List[_PremiumCompanyData]
