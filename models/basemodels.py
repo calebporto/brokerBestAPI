@@ -111,7 +111,9 @@ class _Company(BaseModel):
     city: Optional[str]
     uf: Optional[str]
     cep: Optional[str]
-    thumb: Optional[str]
+    thumbG: Optional[str]
+    thumbM: Optional[str]
+    thumbP: Optional[str]
     images: Optional[List[str]]
     admin_id: Optional[int]
     is_active: bool = True

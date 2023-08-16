@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from sqlalchemy import delete, func
 from fastapi import Response
-from models.basemodels import _BasicProject, _Company, _PremiumCompanyData, _PremiumCompanyData, _PremiumQuery, _Project, _ProjectView, _Property
+from models.basemodels import _BasicProject, _Company, _PremiumCompanyData, _PremiumQuery, _Project, _ProjectView, _Property
 from models.tables import Company, Premium, Project, Property, User
 from models.connection import async_session
 from sqlalchemy.future import select
@@ -23,14 +23,14 @@ async def _get_project_names(filter: str):
             result = query.scalars().all()
         elif filter == 'construtora':
             query = await session.execute(
-                select(Project.id)
-                .column(Company.name)
-                .join(Company, Project.company_id == Company.id)
-                .where(Company.name != None)
+                select(Company.name).select_from(Project)\
+                .join(Company, Project.company_id == Company.id)\
+                .where(Company.name != None)\
                 .distinct(Company.name)
             )
-            raw_result = query.all()
-            result = [item[1] for item in raw_result]
+            raw_result = query.scalars().all()
+            print(raw_result)
+            result = raw_result
         else:
             return Response('filtro invalido', 400)
         return Response(dumps(result), 200)
@@ -172,24 +172,7 @@ async def _get_project_by_id(id: int):
                     link = project_result[0][0].link,
                     book = project_result[0][0].book
                 )
-                response.company = _Company(
-                    id=project_result[0][1].id,
-                    name=project_result[0][1].name,
-                    description=project_result[0][1].description,
-                    email=project_result[0][1].email,
-                    tel=project_result[0][1].tel,
-                    address=project_result[0][1].address,
-                    num=project_result[0][1].num,
-                    complement=project_result[0][1].complement,
-                    district=project_result[0][1].district,
-                    city=project_result[0][1].city,
-                    uf=project_result[0][1].uf,
-                    cep=project_result[0][1].cep,
-                    thumb=project_result[0][1].thumb,
-                    images=project_result[0][1].images,
-                    admin_id=project_result[0][1].admin_id,
-                    is_active=project_result[0][1].is_active
-                )
+                response.company = _Company(**project_result[0][1].__dict__)
                 response.properties = []
             for item in project_result:
                 property = item[2]
@@ -251,7 +234,9 @@ async def _add_company(newCompany: _Company):
                 newCompany.city,
                 newCompany.uf,
                 newCompany.cep,
-                newCompany.thumb,
+                newCompany.thumbG,
+                newCompany.thumbM,
+                newCompany.thumbP,
                 newCompany.images,
                 newCompany.admin_id,
                 newCompany.is_active
@@ -399,7 +384,9 @@ async def _company_edit(company: _Company):
         company_db.city = company.city if company.city else company_db.city
         company_db.uf = company.uf if company.uf else company_db.uf
         company_db.cep = company.cep if company.cep else company_db.cep
-        company_db.thumb = company.thumb if company.thumb else company_db.thumb
+        company_db.thumbG = company.thumbG if company.thumbG else company_db.thumbG
+        company_db.thumbM = company.thumbM if company.thumbM else company_db.thumbM
+        company_db.thumbP = company.thumbP if company.thumbP else company_db.thumbP
 
         session.add(company_db)
         await session.commit()

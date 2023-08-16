@@ -58,7 +58,9 @@ class Company(Base):
     city = Column(String)
     uf = Column(String)
     cep = Column(String)
-    thumb = Column(String)
+    thumbG = Column(String)
+    thumbM = Column(String)
+    thumbP = Column(String)
     images = Column(JSON)
     admin_id = Column(Integer, ForeignKey(User.id, ondelete='CASCADE'), nullable=False)
     is_active = Column(Boolean, nullable=False)
@@ -66,7 +68,7 @@ class Company(Base):
     property_company_id = relationship('Property')
     premium_company_id = relationship('Premium')
 
-    def __init__(self, name, description, email, tel, address, num, complement, district, city, uf, cep, thumb, images, admin_id, is_active):
+    def __init__(self, name, description, email, tel, address, num, complement, district, city, uf, cep, thumbG, thumbM, thumbP, images, admin_id, is_active):
         self.name = name
         self.email = email
         self.description = description
@@ -78,7 +80,9 @@ class Company(Base):
         self.city = city
         self.uf = uf
         self.cep = cep
-        self.thumb = thumb
+        self.thumbG = thumbG
+        self.thumbM = thumbM
+        self.thumbP = thumbP
         self.images = images
         self.admin_id = admin_id
         self.is_active = is_active
